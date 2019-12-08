@@ -1,8 +1,8 @@
 # punyplatypus
 
--- Still not sure what I am able to do --
+-- Not pretty, rather functional --
 
 Functions available so far:
 
-concatBismark
-randomGeneList
+randomGeneList - generate random gene list using biomaRt
+celltype - predicts cell type from Seurat findAllMarkers result 
