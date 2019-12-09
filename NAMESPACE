@@ -2,5 +2,4 @@
 
 export(cellType)
 export(randomGeneList)
-import(biomaRt)
 import(dplyr)

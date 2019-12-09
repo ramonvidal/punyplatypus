@@ -1,13 +1,11 @@
 #' Random gene list
 #' This function creates random gene lists.
 #' @param n_genes How many random genes? Defaults to 10.
-#' @import biomaRt
 #' @keywords genes
 #' @export
 #' @return A 2 column table with gene names in the second column (gene).
 #' @examples
 #' randomGeneList(n_genes=10)
-
 
 randomGeneList <- function(n_genes=10){
   mouse = biomaRt::useMart("ensembl", dataset = "mmusculus_gene_ensembl")

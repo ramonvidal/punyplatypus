@@ -2,9 +2,9 @@
 #' This function is a R adaptation from Alona similar python function. It uses PanglaoDB database
 #' @param markers Dataframe with seurat marker predictions.
 #' @param species use mouse or human. Default is mouse
-#' @import dplyr
 #' @keywords single-cell celltype
 #' @export
+#' @import dplyr
 #' @return A list containing celltype predictions with p-values
 #' @examples
 #' celltypes(markers, species = "mouse")
@@ -30,10 +30,14 @@ cellType <- function(markers, species="mouse"){
   split_list_marker<- split(markerSet,markerSet$cell.type)
   all_genes_markers<-unique(markerSet$official.gene.symbol)
 
+  output<-c("", "", 0.1)
+  output<-as.data.frame(output)
+  colnames(output)<-"NA"
+  rownames(output)<-c("cluster", "celltype", "pvalue")
 
   for (i in 1:length(split_list)){
-    results=NA
-    names(results)<-"None"
+    #results=NA
+    #names(results)<-"None"
     cluster<-as.data.frame(split_list[[i]])
     cluster<-merge(cluster, weights[weights$Var1 %in% cluster$gene,], by.x="gene", by.y="Var1")
     for (j in 1:length(split_list_marker)){
@@ -50,17 +54,23 @@ cellType <- function(markers, species="mouse"){
       not_exp_not_found_in_geneset<-(setdiff(diff_gene_dataset, markers_cellT$official.gene.symbol))
       odds<-fisher.test(matrix(c(length(ct_exp), length(ct_non_exp), length(ct_exp_not_found), length(not_exp_not_found_in_geneset)),  nrow = 2))
       if(odds$p.value<0.05){ #Make this a parameter
-        #print(unique(as.character(cluster$cluster)))
-        #print(unique(as.character(markers_cellT$cell.type)))
-        #print(odds$p.value)
         fish<-odds$p.value
-        names(fish)<-unique(as.character(markers_cellT$cell.type))
-        results<-c(results, fish)
+        results<-c(unique(as.character(cluster$cluster)), unique(as.character(markers_cellT$cell.type)), fish)
+        results<-as.data.frame(results)
+        rownames(results)<-c("cluster", "celltype", "pvalue")
+        colnames(results)<-j
+        output<-cbind(output, results)
       }
     }
-    print(unique(as.character(cluster$cluster)))
-    print(sort(results))
+    #print(unique(as.character(cluster$cluster)))
   }
+  output<-output[,2:ncol(output)]
+  output<-t(output)
+  output<-as.data.frame(output)
+  output$pvalue<-as.numeric(as.character(output$pvalue))
+  output<-output[order(output$cluster, output$pvalue),]
+  rownames(output)<-NULL
+  return(output)
 }
 
 markersSet <- function(species="mouse"){
