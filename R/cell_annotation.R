@@ -18,7 +18,7 @@
 #library(dplyr)
 
 cellType <- function(markers, species="mouse"){
-  markers<-markers[, c(2,6,7)]
+  #markers<-markers[, c(2,6,7)]
   markers$gene<-toupper(markers$gene)
   split_list<- split(markers,markers$cluster)
   all_genes_dataset<-unique(markers$gene)
