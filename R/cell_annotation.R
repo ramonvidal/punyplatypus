@@ -75,9 +75,11 @@ cellType <- function(markers, species="mouse"){
 
 markersSet <- function(species="mouse"){
   ma<-read.csv(system.file("data", "markers.tsv", package = "punyplatypus"), sep="\t")
-  if (species == 'mouse'){
+    if (species == 'mouse'){
       s = 'Mm'
-    }else{
+    }else if (species == 'athaliana'){
+      s = 'At'
+    } else{
       s = 'Hs'
     }
   ma<-ma[grepl(s, ma$species),]
