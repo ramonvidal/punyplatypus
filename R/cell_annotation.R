@@ -2,6 +2,7 @@
 #' This function is a R adaptation from Alona similar python function. It uses PanglaoDB database
 #' @param markers Dataframe with seurat marker predictions.
 #' @param species use mouse or human. Default is mouse
+#' @param pvalue maximum pvalue for significancy on fisher test
 #' @keywords single-cell celltype
 #' @export
 #' @import dplyr
@@ -17,7 +18,7 @@
 
 #library(dplyr)
 
-cellType <- function(markers, species="mouse"){
+cellType <- function(markers, species="mouse", pvalue=0.05){
   #markers<-markers[, c(2,6,7)]
   markers$gene<-toupper(markers$gene)
   split_list<- split(markers,markers$cluster)
@@ -28,12 +29,12 @@ cellType <- function(markers, species="mouse"){
 
 
   split_list_marker<- split(markerSet,markerSet$cell.type)
-  all_genes_markers<-unique(markerSet$official.gene.symbol)
+  all_genes_markers<-as.character(unique(markerSet$official.gene.symbol))
 
-  output<-c("", "", 0.1)
+  output<-c("", "", 0.1, 0.1)
   output<-as.data.frame(output)
   colnames(output)<-"NA"
-  rownames(output)<-c("cluster", "celltype", "pvalue")
+  rownames(output)<-c("cluster", "celltype", "pvalue", "specificity")
 
   for (i in 1:length(split_list)){
     #results=NA
@@ -52,12 +53,24 @@ cellType <- function(markers, species="mouse"){
       ct_exp_not_found<-setdiff(cluster$gene,markers_cellT$official.gene.symbol)
       # how many _non_ expressed genes are NOT found in the geneset?
       not_exp_not_found_in_geneset<-(setdiff(diff_gene_dataset, markers_cellT$official.gene.symbol))
+      # how many expressed genes are found in the whole markerSet?
+      exp_others<-(intersect(diff_gene_dataset,all_genes_markers))
+
       odds<-fisher.test(matrix(c(length(ct_exp), length(ct_non_exp), length(ct_exp_not_found), length(not_exp_not_found_in_geneset)),  nrow = 2))
-      if(odds$p.value<0.05){ #Make this a parameter
+      odds$p.value<-p.adjust(odds$p.value, method = "fdr")
+      if(odds$p.value<pvalue){ #Make this a parameter
+
+        overl<-length(ct_exp)
+        overl_others<-length(ct_non_exp)
+        non_overl<-length(ct_exp_not_found)
+        non_overl_others<-length(not_exp_not_found_in_geneset)
+        exp_other_total<-length(exp_others)
+
+        specificity <- (overl+1) / (exp_other_total+1)
         fish<-odds$p.value
-        results<-c(unique(as.character(cluster$cluster)), unique(as.character(markers_cellT$cell.type)), fish)
+        results<-c(unique(as.character(cluster$cluster)), unique(as.character(markers_cellT$cell.type)), fish, specificity)
         results<-as.data.frame(results)
-        rownames(results)<-c("cluster", "celltype", "pvalue")
+        rownames(results)<-c("cluster", "celltype", "pvalue", "specificity")
         colnames(results)<-j
         output<-cbind(output, results)
       }
@@ -68,7 +81,8 @@ cellType <- function(markers, species="mouse"){
   output<-t(output)
   output<-as.data.frame(output)
   output$pvalue<-as.numeric(gsub(",", ".", as.character(output$pvalue)))
-  output<-output[order(output$cluster, output$pvalue),]
+  output$specificity<-as.numeric(gsub(",", ".", as.character(output$specificity)))
+  output<-output[order(output$cluster, -output$specificity),]
   rownames(output)<-NULL
   return(output)
 }

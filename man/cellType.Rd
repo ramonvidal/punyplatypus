@@ -5,12 +5,14 @@
 \title{Cell type guess
 This function is a R adaptation from Alona similar python function. It uses PanglaoDB database}
 \usage{
-cellType(markers, species = "mouse")
+cellType(markers, species = "mouse", pvalue = 0,05)
 }
 \arguments{
 \item{markers}{Dataframe with seurat marker predictions.}
 
 \item{species}{use mouse or human. Default is mouse}
+
+\item{pvalue}{maximum pvalue for significancy on fisher test}
 }
 \value{
 A list containing celltype predictions with p-values
