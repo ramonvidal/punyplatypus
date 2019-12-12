@@ -67,7 +67,7 @@ cellType <- function(markers, species="mouse"){
   output<-output[,2:ncol(output)]
   output<-t(output)
   output<-as.data.frame(output)
-  output$pvalue<-as.numeric(as.character(output$pvalue))
+  output$pvalue<-as.numeric(gsub(",", ".", as.character(output$pvalue)))
   output<-output[order(output$cluster, output$pvalue),]
   rownames(output)<-NULL
   return(output)
