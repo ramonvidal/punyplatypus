@@ -1,0 +1,9 @@
+,gene,myAUC,avg_diff,power,pct.1,pct.2,cluster,Gene_Name,Gene_Biotype,Gene_Length
+1,g1,0.702,0.414210611,0.404,0.533,0.209,1,,protein_coding,1500
+2,g2,0.708,1.379900149,0.416,0.547,0.225,2,CIPK3,protein_coding,3224
+3,g3,0.709,0.820508768,0.418,0.566,0.206,3,,protein_coding,1910
+4,g4,0.709,1.04630046,0.418,0.526,0.199,4,,protein_coding,2352
+5,g5,0.71,0.517630329,0.42,0.566,0.231,4,ATATH13,protein_coding,2856
+6,g6,0.713,0.583758057,0.426,0.42,0.083,5,,protein_coding,1979
+7,g7,0.716,1.214457059,0.432,0.566,0.237,5,PSBP1,protein_coding,1355
+8,g8,0.717,1.111741246,0.434,0.493,0.171,5,FKBP16-4,protein_coding,1123

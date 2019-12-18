@@ -31,10 +31,11 @@ cellType <- function(markers, species="mouse", pvalue=0.05){
   split_list_marker<- split(markerSet,markerSet$cell.type)
   all_genes_markers<-as.character(unique(markerSet$official.gene.symbol))
 
-  output<-c("", "", 0.1, 0.1)
+  output<-c("", "", 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)
   output<-as.data.frame(output)
   colnames(output)<-"NA"
-  rownames(output)<-c("cluster", "celltype", "pvalue", "specificity")
+  rownames(output)<-c("cluster", "celltype", "pvalue", "TPR", "TNR", "PPV", "NVP", "FNR",
+                      "FPR", "FDR", "FOR", "TS", "ACC", "F1")
 
   for (i in 1:length(split_list)){
     #results=NA
@@ -55,10 +56,14 @@ cellType <- function(markers, species="mouse", pvalue=0.05){
       not_exp_not_found_in_geneset<-(setdiff(diff_gene_dataset, markers_cellT$official.gene.symbol))
       # how many expressed genes are found in the whole markerSet?
       exp_others<-(intersect(diff_gene_dataset,all_genes_markers))
-
+      # how many from the category did not find in the dataset
+      TP<-length(ct_exp)
+      TN<-length(all_genes_markers)-length(markers_cellT$official.gene.symbol)
+      FP<-length(cluster$gene)-length(ct_exp)
+      FN<-length(setdiff(markers_cellT$official.gene.symbol, cluster$gene))###
       odds<-fisher.test(matrix(c(length(ct_exp), length(ct_non_exp), length(ct_exp_not_found), length(not_exp_not_found_in_geneset)),  nrow = 2))
       odds$p.value<-p.adjust(odds$p.value, method = "fdr")
-      if(odds$p.value<pvalue){ #Make this a parameter
+      if(odds$p.value<=pvalue){ #Make this a parameter
 
         overl<-length(ct_exp)
         overl_others<-length(ct_non_exp)
@@ -66,11 +71,25 @@ cellType <- function(markers, species="mouse", pvalue=0.05){
         non_overl_others<-length(not_exp_not_found_in_geneset)
         exp_other_total<-length(exp_others)
 
-        specificity <- (overl+1) / (exp_other_total+1)
+        TPR<-TP/(TP+FN)
+        TNR<-TN/(TN+FP)
+        PPV<-TP/(TP+FP)
+        NVP<-TN/(TN+FN)
+        FNR<-1-TPR
+        FPR<-1-TNR
+        FDR<-1-PPV
+        FOR<-1-NVP
+        TS<-TP/(TP+FN+FP)
+
+        ACC <- (TP+TN)/(TP+TN+FP+FN)
+        F1  <- 2*TP/(2*TP+(FP+FN))
+        #specificity <- (overl+1) / (exp_other_total+1)
         fish<-odds$p.value
-        results<-c(unique(as.character(cluster$cluster)), unique(as.character(markers_cellT$cell.type)), fish, specificity)
+        results<-c(unique(as.character(cluster$cluster)), unique(as.character(markers_cellT$cell.type)), fish, TPR, TNR, PPV, NVP, FNR,
+                   FPR, FDR, FOR, TS, ACC, F1)
         results<-as.data.frame(results)
-        rownames(results)<-c("cluster", "celltype", "pvalue", "specificity")
+        rownames(results)<-c("cluster", "celltype", "pvalue", "TPR", "TNR", "PPV", "NVP", "FNR",
+                             "FPR", "FDR", "FOR", "TS", "ACC", "F1")
         colnames(results)<-j
         output<-cbind(output, results)
       }
@@ -81,21 +100,24 @@ cellType <- function(markers, species="mouse", pvalue=0.05){
   output<-t(output)
   output<-as.data.frame(output)
   output$pvalue<-as.numeric(gsub(",", ".", as.character(output$pvalue)))
-  output$specificity<-as.numeric(gsub(",", ".", as.character(output$specificity)))
-  output<-output[order(output$cluster, -output$specificity),]
+  output$PPV<-as.numeric(gsub(",", ".", as.character(output$PPV)))
+  #output$F1<-as.numeric(gsub(",", ".", as.character(output$F1)))
+  output<-output[order(output$cluster, -output$PPV),]
   rownames(output)<-NULL
   return(output)
 }
 
+
 markersSet <- function(species="mouse"){
   ma<-read.csv(system.file("data", "markers.tsv", package = "punyplatypus"), sep="\t")
-    if (species == 'mouse'){
-      s = 'Mm'
-    }else if (species == 'athaliana'){
-      s = 'At'
-    } else{
-      s = 'Hs'
-    }
+  #ma<-read.csv("~/Dropbox/GIT/RCodes/punyplatypus/data/dataset_test.txt", sep="\t")
+  if (species == 'mouse'){
+    s = 'Mm'
+  }else if (species == 'athaliana'){
+    s = 'At'
+  } else{
+    s = 'Hs'
+  }
   ma<-ma[grepl(s, ma$species),]
   ma<-ma[ma$ubiquitousness.index<0.05,]
   ma_ss<-ma[,2:3]
