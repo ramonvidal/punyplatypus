@@ -1,14 +1,14 @@
 #' Cell type guess
 #' This function is a R adaptation from Alona similar python function. It uses PanglaoDB database
 #' @param markers Dataframe with seurat marker predictions.
-#' @param species use mouse or human. Default is mouse
-#' @param pvalue maximum pvalue for significancy on fisher test
+#' @param species use mouse or human (default: "mouse")
+#' @param pvalue maximum pvalue for significancy on fisher test (default: 0.05)
 #' @keywords single-cell celltype
 #' @export
 #' @import dplyr
-#' @return A list containing celltype predictions with p-values
+#' @return A list containing celltype predictions with adjusted p-values (fdr) and many other measures of performance. Output table is sorted by cluster and PPV (precision) as this one was the best classifier in some benchmarking datasets.
 #' @examples
-#' celltypes(markers, species = "mouse")
+#' celltypes(markers, species = "mouse", pvalue = 0.01)
 
 
 #TODO :
@@ -31,6 +31,7 @@ cellType <- function(markers, species="mouse", pvalue=0.05){
   split_list_marker<- split(markerSet,markerSet$cell.type)
   all_genes_markers<-as.character(unique(markerSet$official.gene.symbol))
 
+  #Fix this matrix initiation:
   output<-c("", "", 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)
   output<-as.data.frame(output)
   colnames(output)<-"NA"
