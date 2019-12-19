@@ -1,6 +1,6 @@
 # punyplatypus
 
--- Not pretty, rather functional --
+-- Not pretty, rather functional (almost) --
 
 Functions available so far:
 
