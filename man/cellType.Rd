@@ -5,24 +5,24 @@
 \title{Cell type guess
 This function is a R adaptation from Alona similar python function. It uses PanglaoDB database}
 \usage{
-cellType(markers, species = "mouse", pvalue = 0,05)
+cellType(markers, species = "mouse", pvalue = 0.05)
 }
 \arguments{
 \item{markers}{Dataframe with seurat marker predictions.}
 
-\item{species}{use mouse or human. Default is mouse}
+\item{species}{use mouse or human (default: "mouse")}
 
-\item{pvalue}{maximum pvalue for significancy on fisher test}
+\item{pvalue}{maximum pvalue for significancy on fisher test (default: 0.05)}
 }
 \value{
-A list containing celltype predictions with p-values
+A list containing celltype predictions with adjusted p-values (fdr) and many other measures of performance. Output table is sorted by cluster and PPV (precision) as this one was the best classifier in some benchmarking datasets.
 }
 \description{
 Cell type guess
 This function is a R adaptation from Alona similar python function. It uses PanglaoDB database
 }
 \examples{
-celltypes(markers, species = "mouse")
+celltypes(markers, species = "mouse", pvalue = 0.01)
 }
 \keyword{celltype}
 \keyword{single-cell}
