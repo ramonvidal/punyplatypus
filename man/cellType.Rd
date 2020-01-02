@@ -5,7 +5,7 @@
 \title{Cell type guess
 This function is a R adaptation from Alona similar python function. It uses PanglaoDB database}
 \usage{
-cellType(markers, species = "mouse", pvalue = 0,05)
+cellType(markers, species = "mouse", pvalue = 0.05)
 }
 \arguments{
 \item{markers}{Dataframe with seurat marker predictions.}
